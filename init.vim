@@ -17,6 +17,9 @@ call plug#begin('~/.vim/plugged')
     Plug 'bling/vim-airline'
     "Plug 'jszakmeister/vim-togglecursor'
     Plug 'vim-airline/vim-airline-themes'
+    "shell prompt
+    Plug 'edkolev/promptline.vim'
+
     " shows indent levels
     Plug 'Yggdroot/indentLine'
 
@@ -74,7 +77,7 @@ set autoindent
 filetype indent plugin on
 syntax enable
 
-let g:cpp_class_scope_highlight = 1
+let g:cpp_class_scope_highlight=1
 
 " share clipboard with the system
 set clipboard=unnamedplus
@@ -171,15 +174,12 @@ endfunction
 
 command! Kwbd call s:Kwbd(1)
 nnoremap <silent> <Plug>Kwbd :<C-u>Kwbd<CR>
-
-" Create a mapping (e.g. in your .vimrc) like this:
-"nmap <C-W>! <Plug>Kwbd
-
+" close current buffer
 noremap <Leader>c :Kwbd<CR>
 
 " Buffergator configuration
 let g:buffergator_suppress_keymaps = 1
-nnoremap <Leader>b :BuffergatorToggle<CR>
+nnoremap <Leader>; :BuffergatorToggle<CR>
 
 " NERD Tree configuration
 nnoremap <Leader>t :NERDTreeToggle<CR>
@@ -191,5 +191,22 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 set background=dark
 colorscheme kalisi
 
-" This runs current python script
-nnoremap <Leader>x :w !python<CR>
+" change line background on insert
+autocmd InsertEnter,InsertLeave * set cul!
+hi CursorLine cterm=NONE ctermbg=236
+
+autocmd BufNewFile,BufRead *.cfg set syntax=sh
+
+" open a file on the same directory
+noremap <Leader>d :e <C-R>=expand('%:p:h') . '/'<CR>
+
+" promptline#slices#host() - current hostname.  To hide the hostname unless connected via SSH, use 
+" promptline#slices#python_virtualenv() - display which virtual env is active (empty is none)
+" promptline#slices#git_status() - count of commits ahead/behind upstream, count of modified/added/unmerged files, symbol for clean branch and symbol for existing untraced files
+
+let g:promptline_preset = {
+        \'a'    : [ promptline#slices#python_virtualenv(), '\A' ],
+        \'b'    : [ promptline#slices#host({ 'only_if_ssh': 1 }), '\w' ],
+        \'c'    : [ promptline#slices#vcs_branch() ],
+        \'z'    : [ promptline#slices#jobs() ],
+        \'warn' : [ promptline#slices#last_exit_code() ]}
